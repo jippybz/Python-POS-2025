@@ -14,7 +14,17 @@ c.execute("""CREATE TABLE IF NOT EXISTS product (
             button TEXT,
             status TEXT,
             note TEXT)""")
-            
+
+# เพิ่ม table transaction (ใช้ backticks เพราะ transaction เป็น reserved word)
+c.execute("""CREATE TABLE IF NOT EXISTS `transaction` (
+            ID INTEGER PRIMARY KEY AUTOINCREMENT,
+            datetime TEXT,
+            subtotal REAL,
+            vat REAL,
+            total REAL,
+            paid REAL,
+            change_amount REAL,
+            items TEXT)""")
 
 def insert_product(barcode,title,price,category,unit='ชิ้น',button='-',status='instock',note=''):
     with conn:
@@ -49,8 +59,17 @@ def search_barcode(barcode):
         print(data)
         return data
 
+def insert_transaction(subtotal, vat, total, paid, change_amount, items):
+    import datetime
+    with conn:
+        current_time = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+        command = 'INSERT INTO `transaction` VALUES(?,?,?,?,?,?,?,?)'
+        c.execute(command, (None, current_time, subtotal, vat, total, paid, change_amount, items))
+        conn.commit()
+        print('Transaction saved')
+
 if __name__ == '__main__':
-# insert_product('1002','Durian',200,'fruit')
+    # insert_product('1002','Durian',200,'fruit')
     # delete_product('1002')
-    search_barcode('1003')
+    # search_barcode('1003')
     view_product()
